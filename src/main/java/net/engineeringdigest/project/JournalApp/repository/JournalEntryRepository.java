@@ -7,6 +7,5 @@ import java.util.List;
 
 public interface JournalEntryRepository extends MongoRepository<JournalEntry,String> {
 
-
     List<JournalEntry> getJournalEntryById(String id);
 }

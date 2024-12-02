@@ -1,8 +1,11 @@
 package net.engineeringdigest.project.JournalApp.service;
 import net.engineeringdigest.project.JournalApp.entitty.JournalEntry;
 import net.engineeringdigest.project.JournalApp.repository.JournalEntryRepository;
+import net.engineeringdigest.project.UserApp.entity.UserEntry;
+import net.engineeringdigest.project.UserApp.service.UserEntryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -14,10 +17,18 @@ public class JournalEntryService {
     private JournalEntryRepository journalEntryRepository;
 
     @Autowired
+    private UserEntryService userEntryService;
+
+    @Autowired
     private FormatTimeService timeService;
 
-    public void saveEntry(JournalEntry journalEntry) {
+    @Transactional
+    public void saveEntry(JournalEntry journalEntry,String userName) {
+
         journalEntryRepository.save(journalEntry);
+        UserEntry userEntry = userEntryService.getUserEntry(userName);
+        userEntry.getJournalEntries().add(journalEntry);
+        userEntryService.save(userEntry);
     }
 
     public List<JournalEntry> getJournalEntries() {
@@ -40,9 +51,15 @@ public class JournalEntryService {
 
     }
 
-    public boolean deleteJournalEntry(String id) {
+    @Transactional
+    public boolean deleteJournalEntry(String id,String userName) {
        boolean is_exist=journalEntryRepository.existsById(id);
        if(is_exist) {
+
+           UserEntry userEntry = userEntryService.getUserEntry(userName);
+           List<JournalEntry> journalEntries = userEntry.getJournalEntries();
+           journalEntries.removeIf(entry -> id.equals(entry.getId()));
+           userEntryService.save(userEntry);
            journalEntryRepository.deleteById(id);
            return true;
        }
@@ -51,7 +68,7 @@ public class JournalEntryService {
 
 
 
-    public boolean updateJournalEntry(String id, JournalEntry updatedJournalEntry) {
+    public boolean updateJournalEntry(String id, JournalEntry updatedJournalEntry,String userName) {
 
         JournalEntry journalEntry = journalEntryRepository.findById(id).orElse(null);
 

@@ -1,25 +1,29 @@
 package net.engineeringdigest.project.UserApp.entity;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.Setter;
+import lombok.*;
+import net.engineeringdigest.project.JournalApp.entitty.JournalEntry;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Getter
-@Setter
-@Document(collection = "user_entries")
-@NoArgsConstructor
+import java.util.ArrayList;
+import java.util.List;
 
+
+@Document(collection = "user_entries")
+@Data
+@RequiredArgsConstructor
 public class UserEntry {
 
     private String id;
 
-    @NonNull
     @Indexed(unique = true)
-
+   @NonNull
     private String username;
+
+   @NonNull
     private String email;
     private String password;
+    @DBRef
+    private List<JournalEntry> journalEntries=new ArrayList<>();
     private boolean is_active=true;
 }
