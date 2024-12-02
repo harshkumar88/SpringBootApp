@@ -4,6 +4,8 @@ import net.engineeringdigest.project.JournalApp.entitty.JournalEntry;
 import net.engineeringdigest.project.JournalApp.service.JournalEntryService;
 import net.engineeringdigest.project.common.DTO.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,14 +19,16 @@ public class JournalEntryController {
     private JournalEntryService journalEntryService;
 
     @GetMapping
-    public List<JournalEntry> getAll(){
-        return new ArrayList<>();
+    public ResponseEntity<List<JournalEntry>> getAll(){
+        List<JournalEntry> journalEntries =journalEntryService.getJournalEntries();
+        return new ResponseEntity<>(journalEntries, HttpStatus.OK);
     }
 
     @PostMapping
-    public Response createJournalEntry(@RequestBody JournalEntry myjournalEntry){
+    public ResponseEntity<Response> createJournalEntry(@RequestBody JournalEntry myjournalEntry){
         journalEntryService.saveEntry(myjournalEntry);
-        return new Response("Journal Addedd Successfully",true);
+        Response res=Response.builder().message("Journal Entry Created").success(true).build();
+        return new ResponseEntity<>(res, HttpStatus.CREATED);
     }
 
     @GetMapping("{id}")
